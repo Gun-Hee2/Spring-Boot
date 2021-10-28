@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mul.com.a.dao.BbsDao">
+
+<select id="getbbslist" parameterType="mul.com.a.dto.BbsParam" resultType="mul.com.a.dto.BbsDto">
+    SELECT SEQ, ID, REF, STEP, DEPTH, TITLE, CONTENT, WDATE, DEL, READCOUNT 
+	FROM ( SELECT ROW_NUMBER()OVER(ORDER BY REF DESC, STEP ASC) AS RNUM,
+	           SEQ, ID, REF, STEP, DEPTH, TITLE, CONTENT, WDATE, DEL, READCOUNT
+	       FROM BBS    
+	       WHERE 1=1
+	     <if test="choice != null and choice != ''
+		  		and search != null and search != ''">		  	  
+			  <if test="choice == 'title'">
+			  		AND TITLE LIKE '%'||#{search}||'%'		  
+			  </if>
+			  <if test="choice == 'content'">
+			  		AND CONTENT LIKE '%'||#{search}||'%'			  
+			  </if>
+			  <if test="choice == 'writer'">
+			  		AND ID=#{search}  
+			  </if>	
+		 </if>
+	       ORDER BY REF DESC, STEP ASC)	 
+	WHERE RNUM BETWEEN #{start} AND #{end}       
+	
+</select>
+
+<!-- 글의 총수 -->
+<select id="getbbscount" parameterType="mul.com.a.dto.BbsParam" resultType="java.lang.Integer">
+    SELECT NVL(COUNT(*), 0) AS CNT
+    FROM BBS
+    WHERE 1=1
+	     <if test="choice != null and choice != ''
+		  		and search != null and search != ''">		  	  
+			  <if test="choice == 'title'">
+			  		AND TITLE LIKE '%'||#{search}||'%'		  
+			  </if>
+			  <if test="choice == 'content'">
+			  		AND CONTENT LIKE '%'||#{search}||'%'			  
+			  </if>
+			  <if test="choice == 'writer'">
+			  		AND ID=#{search}  
+			  </if>	
+		 </if>
+</select>
+
+</mapper>
+
+
+
+
+
+
+
