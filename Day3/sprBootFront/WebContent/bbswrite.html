@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+
+<h1>글추가</h1>
+
+<div align="center">
+
+<form id="frm">
+<table border="1">
+<col width="200"><col width="400">
+
+<tr>
+	<th>아이디</th>
+	<td>
+		<input type="text" id="id" name="id" size="50px" readonly="readonly">
+		<!-- id는 글을 작성할 때 이미 로그인이 되어있고 글을 작성하는 작성자의 id는 고정이므로 value값으로 id를 넣어주고 읽기만 가능한 readonly를 해준다.-->
+	</td>
+</tr>
+
+<tr>
+	<th>제목</th>
+	<td>
+		<input type="text" name="title" size="50px">
+	</td>
+</tr>
+
+<tr>
+	<th>내용</th>
+	<td>
+		<textarea rows="20" cols="50px" name="content"></textarea>
+	</td>
+</tr>
+
+<tr>
+	<td colspan="2" align="center">
+		<button type="button" id="btn">작성완료</button>
+	</td>	
+</tr>
+
+</table>
+
+</form>
+
+
+</div>
+
+<script type="text/javascript">
+let login = JSON.parse(sessionStorage.getItem("login"));
+//alert(login.id);
+$('#id').val(login.id);
+
+$("#btn").click(function() {
+	let params = $("#frm").serialize();
+//	alert(params);
+    $.ajax({
+    	url:"http://localhost:3000/bbswrite",
+    	type:"post",
+    	data:params,
+    	success:function(resp){
+    	//	alert("success");
+    		if(resp == "YES"){
+    			alert("정상적으로 글 작성이 완료 되었습니다!");
+    			location.href = "bbslist.html";
+    		}else{
+    			alert("글 작성이 되지 않았습니다.")
+    			location.href = "bbswrite.html";
+    		}
+    	},
+    	error:function(){
+    		alert("error");
+    	}
+    });
+});
+</script>
+
+
+
+</body>
+
+</body>
+</html>

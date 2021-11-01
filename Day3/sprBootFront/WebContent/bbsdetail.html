@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+//html에서 추가하면, parameter를 받을 수 있는 소스 : 추가만 해주면 된다.
+let urlParams = location.search.split(/[?&]/).slice(1).map(function(paramPair) {
+    return paramPair.split(/=(.+)?/).slice(0, 2);
+}).reduce(function(obj, pairArray) {
+    obj[pairArray[0]] = pairArray[1];
+    return obj;
+}, {});
+</script>
+
+
+</head>
+<body>
+
+<h2>상세 글 보기</h2>
+
+<div align="center">
+
+<table border="1">
+<col width="200px"><col width="400px">
+
+<tr>
+    <th>작성자</th>
+    <td id="writer"></td>
+</tr>
+
+<tr>
+    <th>제목</th>
+    <td>
+        <input type="text" id="title" readonly="readonly" size="90">
+    </td>
+</tr>
+
+<tr>
+    <th>작성일</th>
+    <td id="wdate">
+        
+    </td>
+</tr>
+
+<tr>
+    <th>조회수</th>
+    <td id="readcount">
+        
+    </td>
+</tr>
+
+<tr>
+    <th>정보</th>
+    <td id="information">
+        
+    </td>
+</tr>
+
+<tr>
+    <th>내용</th>
+    <td>
+         <textarea rows="20" cols="50px" id="content" name="content"></textarea>
+    </td>
+</tr>
+
+</table>
+</div>
+
+<br>
+
+
+<button type="button" onclick="location.href='bbslist.html'">글목록</button>
+<button type="button" id="answer">답글</button>
+<button type="button" id="update">수정</button>
+<button type="button" id="delete">삭제</button>
+
+<script type="text/javascript">
+let seq = urlParams.seq;
+let login = JSON.parse(sessionStorage.getItem("login"));
+//alert(seq);
+
+getBbs();
+
+function getBbs() {
+	$.ajax({
+		url:'http://localhost:3000/bbsdetail',
+		type:"get",
+		data:{ 'seq':seq },
+		success:function(dto){
+		//	alert("success");
+		//	alert(JSON.stringify(dto));
+		    
+		    $("#writer").append(dto.id);
+		    $("#wdate").append(dto.wdate);
+		    $("#readcount").append(dto.readcount);
+		    
+		    let information = dto.ref + "-" + dto.step + "-" + dto.depth;	
+		    $("#information").append(information);
+		    
+		    $("#content").val(dto.content);
+		    
+		    let title = dto.title.replaceAll("\"", "&#34;");
+		    //alert(dto.title);
+		    $("#title").val(title);
+		    
+		    if(login.id != dto.id){
+				$("#update").hide();
+				$("#delete").hide();
+			}
+		    
+		    
+		
+		},
+		error:function(){
+			alert("error");
+		}
+	});
+}
+
+$("#answer").click(function () {
+	location.href = "bbsanswer.html?seq=" + seq;
+});
+
+$("#update").click(function () {
+	location.href = "bbsupdate.html?seq=" + seq;
+});
+
+$("#delete").click(function () {
+	location.href = "bbsdelete.html?seq=" + seq;
+});
+
+
+</script>
+
+
+
+</body>
+</html>
