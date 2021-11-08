@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h2>file upload</h2>
+
+<form id="upload_file_frm">	
+	<input type="file" id="uploadFile" name="uploadFile" accept="*">
+	<input type="text" name="message">
+	<button type="button" id="uploadFileBtn">파일 업로드</button>
+	<p id="uploadResult"></p>
+</form>
+
+<p id="msg"></p>
+
+<script type="text/javascript">
+
+$("#uploadFileBtn").click(function() {
+	
+	$.ajax({
+		url:"http://localhost:3000/cfr_fileUpload",
+		type:"post",
+		data:new FormData( $("#upload_file_frm")[0] ),
+		enctype: 'multipart/form-data',
+		processData:false,
+		contentType:false,
+		cash:false,
+		success:function(msg){
+			alert('success');
+			alert(msg);
+		    
+		    let json = JSON.parse(msg); 
+		    
+		    $("#msg").text(JSON.stringify(json.info) + JSON.stringify(json.faces));
+		
+		},
+		error:function(){
+			alert('error');
+		}		
+	});
+	
+});
+
+</script>
+
+</body>
+</html>

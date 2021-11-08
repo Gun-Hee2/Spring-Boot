@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ChatBot.html</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="page/jquery.twbsPagination.min.js"></script>
+<link type="text/css" rel="stylesheet" href="css/chatbox.css">
+
+<!-- 챗봇 상단 제목 폰트 2개 -->
+<style type="text/css">
+@font-face {
+    font-family: 'twaysky';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_tway@1.0/twaysky.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SBAggroB';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 버튼 테두리 안보이게 하는 css */
+#button:focus,
+#button:active {
+  outline: none;
+  box-shadow: none;
+}
+</style>
+
+</head>
+<body>
+
+<!-- 버튼 이동하게 만드는 div -> id값 chatbtn으로 만든 스크립트 아래에서 확인* -->
+<div id="chatbtn" style="display:scroll;position:fixed;bottom:50px;right:10px;">
+<!-- 챗봇을 실행하는 이미지 버튼 -->
+<button id="button" class="btn" data-target="#layerpop" data-toggle="modal" data-backdrop="static" data-keyboard="false"><img class="btn-img" src="./image/chat1.png" title="이동하려면 챗봇을 열고 닫아주세요!"></button><br/>
+<!-- <input type="image" src="./image/chat1.png" data-target="#layerpop" data-toggle="modal" data-backdrop="static" data-keyboard="false"  border="0" id="modalbtn" title="이동하려면 챗봇을 열고 닫아주세요!"> --> 
+</div>
+<div class="modal fade" id="layerpop">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- header -->
+      <div class="modal-header">
+        <!-- header title -->
+        <h4 class="modal-title" style="font-family: 'twaysky'">Multi Cinema</h4>
+        <!-- 닫기(x) 버튼 -->
+        <button type="button" class="close" data-dismiss="modal" id="closebtn">×</button>
+      </div>
+      <!-- body -->
+      <div class="modal-body">
+            <div id="wrapper">
+    <div id="menu">
+        <h3 class="welcome" style="font-family: 'SBAggroB'">1:1 상담문의</h3>
+    </div>
+    
+    <div id="chatbox">
+    
+        <div class="botmsg">안녕하세요 고객님 무엇을 도와드릴까요?!</div><br>
+        
+        
+    </div>
+    
+    <div id="myform">
+        <input type="text" id="usermsg" placeholder="message please">
+        <input type="button" id="submitmsg" value="send">
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	
+	$("#chatbox").stop().animate({ scrollTop:$("#chatbox")[0].scrollHeight }, 2000);
+	
+	$("#submitmsg").click(function() {
+		
+		if($("#usermsg").val() != ""){
+			
+			$("#chatbox").append("<div align='right'><div class='usermsg'>" + $("#usermsg").val() + "</div></div><br>");
+			
+			$.ajax({
+				url:"http://localhost:3000/chatbot",
+				type:"post",
+				data:{msg:$("#usermsg").val()},
+				success:function(resp){
+				//	alert("success");
+				//	alert(resp);
+				
+				    respProc(resp);
+				
+				},
+				error:function(){
+					alert("error");
+				}	
+			});
+			
+			
+			$("#chatbox").stop().animate({ scrollTop:$("#chatbox")[0].scrollHeight }, 2000);
+		}
+	});
+	
+});
+
+/* ajax(비동기통신)으로 받아온 resp값(봇 메세지)를 통한 챗봇에 봇 메세지 추가 */
+function respProc(resp){
+	
+	let json = JSON.parse(resp);
+	
+	if(JSON.stringify(json.bubbles[0].type).replaceAll("\"","") == "text"){
+    	$("#chatbox").append("<div class='botmsg'>" + JSON.stringify(json.bubbles[0]["data"].description).replaceAll("\"","") + "</div><br>");
+    }else if(JSON.stringify(json.bubbles[0]["data"]["cover"].type).replaceAll("\"","") == "text"){
+    //	$("#chatbox").append("<div align='right'><div class='botmsg'>" + JSON.stringify(json.bubbles[0]["data"]["cover"]["data"].description).replaceAll("\"","") + "</div></div><br>");
+    	$("#chatbox").append("<div class='botmsg'>" + JSON.stringify(json.bubbles[0]["data"]["cover"]["data"].description).replaceAll("\"","") +"<br>" + "<a href=" + JSON.stringify(json.bubbles[0]["data"].contentTable[0][0]["data"]["data"]["action"]["data"].url) + "target='_blank'>" + JSON.stringify(json.bubbles[0]["data"].contentTable[0][0]["data"].title).replaceAll("\"","") + "</a></div><br>");
+    }else if(JSON.stringify(json.bubbles[0]["data"]["cover"].type).replaceAll("\"","") == "image"){
+    	$("#chatbox").append("<div class='botmsg'>" + JSON.stringify(json.bubbles[0]["data"]["cover"].title).replaceAll("\"","") + "<br>" + "<img src=" + JSON.stringify(json.bubbles[0]["data"]["cover"]["data"].imageUrl) + "style='width:200px; height:200px;'>" + "</div><br>");
+    //	$("#chatbox").append("<div align='right'><div class='botmsg'>" + JSON.stringify(json.bubbles[0]["data"]["cover"].title) + "</div></div><br>");
+    }
+}
+
+</script>
+
+<script>
+
+/* 챗봇 버튼 이동을 가능하게 만드는 함수 */
+function movebutton() {
+	chatbtn.onmousedown = function(event) {
+		   
+		  let shiftX = event.clientX - button.getBoundingClientRect().left;
+		  let shiftY = event.clientY - button.getBoundingClientRect().top;
+
+		  chatbtn.style.position = 'absolute';
+		  chatbtn.style.zIndex = 1000;
+		  document.body.append(chatbtn);
+
+		  moveAt(event.pageX, event.pageY);
+
+		  // 초기 이동을 고려한 좌표 (pageX, pageY)에서
+		  // 버튼을 이동합니다.
+		  function moveAt(pageX, pageY) {
+			  chatbtn.style.left = pageX - shiftX + 'px';
+			  chatbtn.style.top = pageY - shiftY + 'px';
+		  }
+
+		  function onMouseMove(event) {
+		    moveAt(event.pageX, event.pageY);
+		  }
+
+		  // mousemove로 버튼을 움직입니다.
+		  document.addEventListener('mousemove', onMouseMove);
+
+		  // 버튼을 드롭하고, 불필요한 핸들러를 제거합니다.
+		  chatbtn.onmouseup = function() {
+		    document.removeEventListener('mousemove', onMouseMove);
+		    chatbtn.onmouseup = null;
+		    chatbtn.onmousedown = null;
+		    
+		  };
+		  
+
+		};
+		
+
+		chatbtn.ondragstart = function() {
+		  return false;
+		};
+}
+        /* 챗봇 버튼 이동 함수 실행 */
+        movebutton();
+        
+        /* 챗봇 버튼 클릭시 이동 함수 null값 전환 후 챗봇 창 open */
+		$('#modalbtn').click(function(e){
+			chatbtn.onmousedown = null;
+			e.preventDefault();
+			$('#layerpop').modal("show");
+		});
+		
+        /* x버튼 클릭 후 다시 챗봇 버튼 이동 함수 실행 */
+		$('#closebtn').click(function(){
+			movebutton();
+		});
+		
+</script>
+
+   </div>
+  </div>
+ </div> 
+</div>
+
+</body>
+</html>
+
+
+
+

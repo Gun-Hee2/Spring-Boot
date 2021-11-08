@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>Text To Speech</h1>
+
+음성변환 문장:<input type="text" id="text" size="30">
+<button type="button" id="btnclick">변환</button>
+
+<script type="text/javascript">
+$("#btnclick").click(function() {
+	
+	$.ajax({
+		url:"http://localhost:3000/tts_proc",
+		type:"post",
+		data:{str:$("#text").val()},
+		success:function(resp){
+			alert("success");
+			alert(resp);
+		},
+		error:function(){
+			alert("error");
+		}
+		
+	});
+	
+	
+});
+
+</script>
+
+</body>
+</html>

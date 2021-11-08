@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>Account</h1>
+
+<form id="frm"> <!-- 입력되는 모든 값들을 id가 "frm"인곳으로 모을 수 있다. -->
+<table border="1">
+<tr>
+    <th>아이디</th>
+    <td>
+        <input type="text" id="id" name="id" placeholder="아이디입력" size="20">
+        <p id="idcheck" style="font-size: 8px"></p>
+        <input type="button" id="idcheckbtn" value="id확인">
+    </td>
+</tr>
+<tr>
+    <th>패스워드</th>
+    <td>
+        <input type="text" id="pwd" name="pwd" placeholder="패스워드입력" size="20">
+    </td>
+</tr>
+<tr>
+    <th>이름</th>
+    <td>
+        <input type="text" id="name" name="name" placeholder="이름입력" size="20">
+    </td>
+</tr>
+<tr>
+    <th>이메일</th>
+    <td>
+        <input type="text" id="email" name="email" placeholder="이메일입력" size="20">
+    </td>
+</tr>
+<tr>
+    <td colspan="2" align="center">
+         <button type="button" id="account">회원가입</button>
+    </td>
+</tr>
+
+</table>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function () {
+	$("#account").click(function() { // 회원가입 버튼을 눌렀을 때 실행되는 함수
+			//	alert("click");
+
+			let params = $("#frm").serialize(); // jquery용 함수 params안에 데이터값들 한번에 표현 가능
+			//alert(params);
+
+			$.ajax({
+				url : "http://localhost:3000/addmember", // 스프링부트의 url value값이 /addmember인곳으로 통신
+				type : "post",
+				//data:{ id:$("#id").val(), pwd:$("#pwd").val(), name:$("#name").val(), email:$("#email").val() },
+				//data:$("#frm").serialize(),
+				data : params,
+				success : function(resp) {
+				//	alert("success");
+				//	alert(resp);
+					if(resp == "OK"){
+		    			alert("정상적으로 회원가입이 되었습니다!");
+		    		    location.href = "login.html";
+		    		}else {
+		    		    alert("회원가입이 되지 않았습니다!");
+		    		    location.href = "regi.html";
+		    		}
+				},
+				error : function() {
+					alert("error");
+				}
+			});
+
+		});
+
+	$("#idcheckbtn").click(function() {
+
+			$.ajax({ // AJAX는 HTML 페이지 전체가 아닌 일부분만 갱신할 수 있도록 XMLHttpRequest객체를 통해 서버에 request한다. 
+				// 이 경우, JSON이나 XML형태로 필요한 데이터만 받아 갱신하기 때문에 그만큼의 자원과 시간을 아낄 수 있다.
+				url : "http://localhost:3000/idcheck",
+				type : "post",
+				data : {
+					id : $("#id").val()
+				}, // 데이터값을 전송, 입력한 아이디값을 전송
+				success : function(resp) { // 받아온 데이터값 resp
+					//	alert('success');
+					//	alert(resp.msg.trim());
+					//  alert(resp);
+
+					if (resp.trim() == "NO") { // 받아온 데이터값(공백을 제거한) resp가 "NO"라면 사용할 수 있는 아이디라고 출력 
+						$("#idcheck").css("color", "#0000ff");
+						$("#idcheck").html("이 ID는 사용할 수 있습니다");
+					} else { // 받아온 데이터값(공백을 제거한) resp가 "NO"라면 사용중인 아이디라고 출력
+						$("#idcheck").css("color", "#ff0000");
+						$("#idcheck").html("사용 중인 ID입니다");
+						$("#id").val("");
+						$("#id").focus();
+					}
+				},
+				error : function() {
+					alert('error');
+				}
+			});
+
+	});
+
+});
+</script>
+
+
+
+</body>
+</html>
